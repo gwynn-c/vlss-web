@@ -16,14 +16,14 @@
          <img src="VLSS ICON.jpg" alt="VLSS Logo">
     </div>
     <div class="navbar-start">
-        <a href="#" class="btn btn-ghost btn-sm">Welcome!</a>
-        <a href="#" class="btn btn-ghost btn-sm">Games</a>
-        <a href="#" class="btn btn-ghost btn-sm">About Us</a>
+        <a href="/" class="btn btn-ghost btn-sm">Welcome!</a>
+        <a href="/games?" class="btn btn-ghost btn-sm">Games</a>
+        <a href="/about-us?" class="btn btn-ghost btn-sm">About Us</a>
 
     </div>
     <div class="navbar-end">
-        <a href="#" class="btn btn-ghost btn-sm">Privacy Policy</a>
-        <a href="#" class="btn btn-ghost btn-sm">Careers</a>
+        <a href="/privacy-policy?" class="btn btn-ghost btn-sm">Privacy Policy</a>
+        <a href="/careers" class="btn btn-ghost btn-sm">Careers</a>
         <input type="checkbox" value="light" class="toggle theme-controller" />
 
     </div>
