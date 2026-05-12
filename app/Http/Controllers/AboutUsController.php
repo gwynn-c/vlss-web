@@ -2,42 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class AboutUsController extends Controller
 {
     public function index()
     {
         $persons = [
             [
-                "name"=> "Ahmad Hasnain Fazili",
-                "title" =>'Lead Developer',
-                'tagLine' =>'If we hard, we hard!',
-                'picture'=>'VLSS ICON.jpg'
+                'name' => 'Ahmad Hasnain Fazili',
+                'title' => 'Technical Lead',
+                'tagLine' => 'If we hard, we hard!',
+                'picture' => 'VLSS ICON.jpg',
+                'profileLink'=> '#',
+                'favouriteGames'=> 'Baldurs Gate3, Hades and Skyrim',
             ],
-            
+
             [
-                "name"=> "Aman bin Khalid",
-                "title" =>'CFO and Jrafic designer',
-                'tagLine' =>'Apko phit pta czn!',
-                'picture'=>'VLSS ICON.jpg'
+                'name' => 'Aman bin Khalid',
+                'title' => 'Creative Lead',
+                'tagLine' => 'Apko phit pta czn!',
+                'picture' => 'VLSS ICON.jpg',
+                'profileLink'=> '#',
+                'favouriteGames'=> 'CS:2 and FIFA',
             ],
-        
+
             [
-                "name"=> "Samia Afzal",
-                "title" =>'The heart',
-                'tagLine' =>'Ish sho nummy',
-                'picture'=>'VLSS ICON.jpg'
-                ],
+                'name' => 'Samia Afzal',
+                'title' => 'Art Director',
+                'tagLine' => 'Ish sho nummy',
+                'picture' => 'VLSS ICON.jpg',
+                'profileLink'=> '#',
+                'favouriteGames'=> 'Marvel Rivals and Jak and Dexter',
+            ],
+
             [
-                "name"=> "Zubair Ali",
-                "title" =>'Awazar tareen',
-                'tagLine' =>'Off!',
-                'picture'=>'VLSS ICON.jpg'
-            ]
+                'name' => 'Zubair Ali',
+                'title' => 'Lead Game Designer',
+                'tagLine' => 'Off!',
+                'picture' => 'VLSS ICON.jpg',
+                'profileLink'=> '#',
+                'favouriteGames'=> 'Counter Strike, DoTA and Tiny Glade',
+            ],
 
         ];
 
-        return view("about", ['persons'=>$persons]);
+        return view('about', ['persons' => $persons]);
     }
 }
