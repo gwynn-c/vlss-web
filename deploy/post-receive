@@ -1,0 +1,119 @@
+#!/bin/bash
+# Very Longsword Studio — server-side post-receive hook.
+#
+# Auto-deploys when `main` is pushed to the bare repo at ~/web/vlss-web.git.
+# It runs the full release (checkout → composer → migrate → caches → docroot),
+# so a plain `git push` fully deploys the app — no separate deploy.sh needed.
+#
+# Install on the server (run once, as the deploy user):
+#   cp ~/web/vlss-web/deploy/post-receive ~/web/vlss-web.git/hooks/post-receive
+#   chmod +x ~/web/vlss-web.git/hooks/post-receive
+# (After the first manual deploy the file exists in the work tree; on later
+#  releases the hook re-copies itself — see "self-update" below.)
+
+set -euo pipefail
+
+# The hook is invoked with GIT_DIR pointing at the bare repo. Clear it so the
+# explicit --git-dir/--work-tree commands below are not overridden.
+unset GIT_DIR
+
+GITDIR="$HOME/web/vlss-web.git"
+WORK="$HOME/web/vlss-web"
+DOCROOT="$HOME/web"
+ENVFILE="$HOME/vlss.env.production"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+
+deploy_main() {
+  echo "==> VLSS deploy ($STAMP)"
+  echo "==> deployed main is now: $(git --git-dir="$GITDIR" rev-parse main)"
+  echo "    (save this SHA if you ever want to roll back)"
+
+  # 1) Check the pushed tree out into the work tree.
+  mkdir -p "$WORK"
+  git --work-tree="$WORK" --git-dir="$GITDIR" checkout -f main
+
+  cd "$WORK"
+
+  # Self-update: keep the installed hook in sync with the repo's copy.
+  if [ -f "$WORK/deploy/post-receive" ]; then
+    cp "$WORK/deploy/post-receive" "$GITDIR/hooks/post-receive"
+    chmod +x "$GITDIR/hooks/post-receive"
+  fi
+
+  # 2) Environment (reuses the existing production APP_KEY).
+  if [ ! -f .env ]; then
+    cp "$ENVFILE" .env
+    echo "==> installed .env"
+  else
+    echo "==> .env already present — leaving it untouched"
+  fi
+
+  # 3) PHP dependencies.
+  export COMPOSER_ALLOW_SUPERUSER=1
+  echo "==> composer install"
+  composer install --no-dev --optimize-autoloader --no-interaction
+
+  mkdir -p database
+  [ -f database/database.sqlite ] || touch database/database.sqlite
+
+  # 4) Database.
+  echo "==> migrate"
+  php artisan migrate --force
+  php artisan storage:link 2>/dev/null || true
+
+  # Uploaded images live in public/img/uploads (untracked); make sure the dir exists.
+  mkdir -p public/img/uploads
+
+  # 5) Ensure an admin user exists for the content panel. Optional and idempotent:
+  #    set ADMIN_EMAIL, ADMIN_PASSWORD (and optionally ADMIN_NAME) in the env file
+  #    to auto-provision / reset on deploy. Leave them out to manage it by hand
+  #    with:  php artisan admin:create
+  ADMIN_EMAIL="$(grep -E '^ADMIN_EMAIL=' .env | cut -d= -f2- | tr -d '"' || true)"
+  ADMIN_PASSWORD="$(grep -E '^ADMIN_PASSWORD=' .env | cut -d= -f2- | tr -d '"' || true)"
+  ADMIN_NAME="$(grep -E '^ADMIN_NAME=' .env | cut -d= -f2- | tr -d '"' || true)"
+  if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
+    echo "==> ensuring admin user ($ADMIN_EMAIL)"
+    php artisan admin:create --name="${ADMIN_NAME:-Admin}" --email="$ADMIN_EMAIL" --password="$ADMIN_PASSWORD"
+  else
+    echo "==> (skip admin bootstrap — set ADMIN_EMAIL/ADMIN_PASSWORD in $ENVFILE, or run 'php artisan admin:create')"
+  fi
+
+  # 6) Rebuild caches (must run AFTER migrate so new routes/config/views ship).
+  echo "==> cache config/routes/views"
+  php artisan config:cache
+  php artisan route:cache
+  php artisan view:cache
+
+  # 7) Writable dirs.
+  echo "==> fix writable dirs"
+  chmod -R ug+rwX storage bootstrap/cache
+
+  # 8) Point the docroot at the app's public/ (backs up what it replaces).
+  echo "==> docroot routing"
+  [ -f "$DOCROOT/.htaccess" ] && cp "$DOCROOT/.htaccess" "$DOCROOT/.htaccess.bak-$STAMP" || true
+  cat > "$DOCROOT/.htaccess" <<'HTACCESS'
+# Serve the Laravel app that deploys into ./vlss-web
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/vlss-web/public/
+    RewriteRule ^(.*)$ /vlss-web/public/$1 [L]
+</IfModule>
+HTACCESS
+
+  # Stop the placeholder index.html from shadowing "/".
+  if [ -f "$DOCROOT/index.html" ]; then
+    mv "$DOCROOT/index.html" "$DOCROOT/index.html.disabled-$STAMP"
+    echo "==> disabled placeholder index.html"
+  fi
+
+  echo "==> DONE. Visit https://verylongswordstudio.com/"
+}
+
+# Deploy only when main is updated; ignore pushes to other branches.
+while read -r oldrev newrev refname; do
+  if [ "$refname" = "refs/heads/main" ]; then
+    deploy_main
+  else
+    echo "==> $refname pushed (ignored — only main triggers a deploy)"
+  fi
+done
