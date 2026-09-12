@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApplyContentOverrides;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Unauthenticated admin visitors are sent to the admin login screen.
+        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+
+        // Overlay admin-edited content on top of the config defaults, per request.
+        $middleware->web(append: [ApplyContentOverrides::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
