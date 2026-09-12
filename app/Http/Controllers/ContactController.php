@@ -22,7 +22,7 @@ class ContactController extends Controller
             'website' => ['nullable', 'size:0'],
         ]);
 
-        $submission = ContactSubmission::create([
+        $attributes = [
             'name'       => $data['name'],
             'company'    => $data['company'] ?? null,
             'email'      => $data['email'],
@@ -30,10 +30,18 @@ class ContactController extends Controller
             'budget'     => $data['budget'] ?? null,
             'message'    => $data['message'],
             'ip_address' => $request->ip(),
-        ]);
+        ];
 
-        // Deliver to the studio inbox. In local dev MAIL_MAILER=log writes the
-        // email to storage/logs/laravel.log instead of sending it.
+        // Persisting to a database is optional — this site can run without one.
+        // If a DB is configured we store the submission; otherwise we still email it.
+        $submission = new ContactSubmission($attributes);
+        $submission->created_at = now();
+        try {
+            $submission->save();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         Mail::to(config('site.contact_email'))->send(new ContactSubmitted($submission));
 
         return back()->with('contact_sent', true);

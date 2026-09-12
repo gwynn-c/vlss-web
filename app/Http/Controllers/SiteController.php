@@ -16,4 +16,9 @@ class SiteController extends Controller
             'roles'    => config('content.roles'),
         ]);
     }
+
+    public function privacy()
+    {
+        return view('privacy');
+    }
 }

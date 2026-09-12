@@ -15,6 +15,9 @@ return [
     // Where the contact form emails are delivered.
     'contact_email' => env('SITE_CONTACT_EMAIL', 'dev.vlss@proton.me'),
 
+    // Date shown on the privacy policy page (Y-m-d).
+    'privacy_updated' => '2026-09-12',
+
     // Studio meta used in the footer, <head>, and structured data.
     'name'        => 'Very Longsword Studio',
     'tagline'     => 'Game design & development studio',
