@@ -5,11 +5,17 @@
 # It runs the full release (checkout → composer → migrate → caches → docroot),
 # so a plain `git push` fully deploys the app — no separate deploy.sh needed.
 #
-# Install on the server (run once, as the deploy user):
-#   cp ~/web/vlss-web/deploy/post-receive ~/web/vlss-web.git/hooks/post-receive
+# First-time install (run once on the server, no work tree required) — pull this
+# script straight out of the objects you just pushed to the bare repo:
+#   git --git-dir=~/web/vlss-web.git show main:deploy/post-receive \
+#       > ~/web/vlss-web.git/hooks/post-receive
 #   chmod +x ~/web/vlss-web.git/hooks/post-receive
-# (After the first manual deploy the file exists in the work tree; on later
-#  releases the hook re-copies itself — see "self-update" below.)
+# Then trigger the first deploy manually (feed the hook the ref on stdin):
+#   NEW=$(git --git-dir=~/web/vlss-web.git rev-parse main)
+#   echo "0000000000000000000000000000000000000000 $NEW refs/heads/main" \
+#       | ~/web/vlss-web.git/hooks/post-receive
+# After that, every `git push` fires it automatically and it self-updates
+# from the repo copy (see "self-update" below). See deploy/README.md for details.
 
 set -euo pipefail
 

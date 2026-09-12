@@ -12,28 +12,41 @@ server. Once installed, `git push production main` fully deploys the app.
 | `~/web` | Apache docroot (rewrites into `vlss-web/public`) |
 | `~/vlss.env.production` | the production `.env` (holds `APP_KEY`; **never committed**) |
 
-## One-time hook install
+## First-time bootstrap (from scratch — no work tree, no deploy.sh needed)
 
-From the server, after the first checkout exists:
+The hook creates the work tree and runs the whole release itself, so the only
+setup is getting the hook file in place. Do this once.
 
-```bash
-cp ~/web/vlss-web/deploy/post-receive ~/web/vlss-web.git/hooks/post-receive
-chmod +x ~/web/vlss-web.git/hooks/post-receive
-```
-
-If the work tree doesn't exist yet, run `bash ~/deploy.sh` once (the manual path),
-then install the hook. After that the hook **self-updates** from
-`deploy/post-receive` on every deploy.
-
-## Deploying
-
-Add the remote once on your machine:
+**1. On your machine**, point a remote at the server's bare repo and push `main`:
 
 ```bash
+# create the bare repo first if it doesn't exist:
+#   ssh <user>@verylongswordstudio.com 'git init --bare ~/web/vlss-web.git'
 git remote add production <user>@verylongswordstudio.com:web/vlss-web.git
+git push production main
 ```
 
-Then deploy by pushing `main`:
+This push just stores the objects — nothing deploys yet, because the hook isn't
+installed. That's expected.
+
+**2. On the server**, install the hook by extracting it from the objects you just
+pushed (works with no checkout present), then trigger the first deploy:
+
+```bash
+git --git-dir=~/web/vlss-web.git show main:deploy/post-receive \
+    > ~/web/vlss-web.git/hooks/post-receive
+chmod +x ~/web/vlss-web.git/hooks/post-receive
+
+# fire it once manually (feed it the ref on stdin):
+NEW=$(git --git-dir=~/web/vlss-web.git rev-parse main)
+echo "0000000000000000000000000000000000000000 $NEW refs/heads/main" \
+    | ~/web/vlss-web.git/hooks/post-receive
+```
+
+That first run does the full deploy. From here on the hook **self-updates** from
+`deploy/post-receive` on every release, so you never touch it again.
+
+## Deploying (after bootstrap)
 
 ```bash
 git push production main
