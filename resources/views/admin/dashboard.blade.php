@@ -27,6 +27,13 @@
             </a>
         @endforeach
 
+        <a class="card" href="{{ route('admin.submissions.index') }}">
+            <span class="card__count">{{ $submissionCount }}</span>
+            <span class="card__icon">✉️</span>
+            <div class="card__title">Contact submissions</div>
+            <div class="card__meta">Messages sent through the contact form</div>
+        </a>
+
         <a class="card" href="{{ route('admin.settings.edit') }}">
             <span class="card__icon">⚙️</span>
             <div class="card__title">Site settings</div>
