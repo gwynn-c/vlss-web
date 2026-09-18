@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\Admin\ContactSubmissionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HeroController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
@@ -40,6 +41,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Site settings (single record)
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+        // Contact form submissions (read-only inbox)
+        Route::get('submissions', [ContactSubmissionController::class, 'index'])->name('submissions.index');
+        Route::get('submissions/{submission}', [ContactSubmissionController::class, 'show'])->name('submissions.show');
+        Route::delete('submissions/{submission}', [ContactSubmissionController::class, 'destroy'])->name('submissions.destroy');
 
         // Generic list sections (games, team, quotes, services, pillars, roles)
         Route::get('sections/{section}', [SectionController::class, 'index'])->name('sections.index');

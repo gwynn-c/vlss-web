@@ -27,6 +27,10 @@
                     </a>
                 @endforeach
 
+                <a href="{{ route('admin.submissions.index') }}" @class(['active' => request()->routeIs('admin.submissions.*')])>
+                    <span class="ic">✉️</span> Contact submissions
+                </a>
+
                 <a href="{{ route('admin.settings.edit') }}" @class(['active' => request()->routeIs('admin.settings.*')])>Site settings</a>
             </nav>
 
