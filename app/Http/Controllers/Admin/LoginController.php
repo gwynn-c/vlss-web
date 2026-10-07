@@ -12,14 +12,18 @@ class LoginController extends Controller
 {
     public function show(Request $request, LoginEncryption $encryption)
     {
+        if ($this->isBotAgent($request->userAgent())) {
+            abort(403);
+        }
+
         if (Auth::check()) {
             return redirect()->route('admin.dashboard');
         }
 
-        return view('admin.login', [
+        return response(view('admin.login', [
             'publicKey' => $encryption->publicKey(),
             'nonce' => $encryption->issueNonce($request->session()),
-        ]);
+        ]))->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     /**
@@ -28,6 +32,17 @@ class LoginController extends Controller
      */
     public function login(Request $request, LoginEncryption $encryption)
     {
+        if ($this->isBotAgent($request->userAgent())) {
+            abort(403);
+        }
+
+        // Honeypot: a real browser never fills the hidden "website" field.
+        if (is_string($request->input('website')) && $request->input('website') !== '') {
+            return back()->withErrors([
+                'email' => 'Your sign-in could not be verified. Please reload the page and try again.',
+            ]);
+        }
+
         // Single use: pulled before anything else so a failed or replayed attempt can't reuse it.
         $expectedNonce = $request->session()->pull(LoginEncryption::NONCE_SESSION_KEY);
 
@@ -81,5 +96,45 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('admin.login');
+    }
+
+    /**
+     * Reject requests from obvious automation clients (curl, wget, HTTP
+     * libraries, headless HTTP tools) with a 403. This is a cheap mitigation
+     * against crawlers and bad-faith testers, not a security boundary — the
+     * encrypted credentials plus the single-use nonce are the real gate.
+     * Empty user agents are allowed so obscure clients and the test suite
+     * keep working; only known tool signatures are denied.
+     */
+    private function isBotAgent(?string $userAgent): bool
+    {
+        if ($userAgent === null || $userAgent === '') {
+            return false;
+        }
+
+        $banned = [
+            'curl/',
+            'wget/',
+            'python-requests',
+            'python-urllib',
+            'go-http-client',
+            'okhttp',
+            'postmanruntime',
+            'insomnia/',
+            'httpie',
+            'libwww-perl',
+            'lynx/',
+            'powershell',
+        ];
+
+        $userAgent = strtolower($userAgent);
+
+        foreach ($banned as $signature) {
+            if (str_contains($userAgent, $signature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

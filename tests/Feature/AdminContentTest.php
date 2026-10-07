@@ -28,27 +28,27 @@ class AdminContentTest extends TestCase
         $file = UploadedFile::fake()->image('keyart.png', 800, 500);
 
         $response = $this->actingAs($this->admin())->post('/admin/sections/games', [
-            'title'      => 'New Game',
-            'blurb'      => 'A test project.',
-            'status'     => 'released',
-            'meta'       => 'PC',
+            'title' => 'New Game',
+            'blurb' => 'A test project.',
+            'status' => 'released',
+            'meta' => 'PC',
             'link_label' => 'Steam',
-            'href'       => 'https://example.com',
-            'image'      => $file,
+            'href' => 'https://example.com',
+            'image' => $file,
         ]);
 
         $response->assertRedirect('/admin/sections/games');
 
         $games = ContentSetting::where('key', 'games')->first()->value;
-        $new   = collect($games)->firstWhere('title', 'New Game');
+        $new = collect($games)->firstWhere('title', 'New Game');
 
         $this->assertNotNull($new);
         $this->assertSame('Released', $new['status_label']); // select drove the label
         $this->assertStringStartsWith('img/uploads/', $new['image']);
         $this->assertFileExists(public_path($new['image']));
 
-        // The public homepage reflects the new project.
-        $this->get('/')->assertOk()->assertSee('New Game');
+        // The games page reflects the new project.
+        $this->get('/games')->assertOk()->assertSee('New Game');
 
         // Clean up the file this test wrote into public/.
         @unlink(public_path($new['image']));
@@ -57,7 +57,7 @@ class AdminContentTest extends TestCase
     public function test_admin_can_remove_a_project_image(): void
     {
         $admin = $this->admin();
-        $file  = UploadedFile::fake()->image('art.png');
+        $file = UploadedFile::fake()->image('art.png');
 
         $this->actingAs($admin)->post('/admin/sections/games', [
             'title' => 'Has Image',
@@ -70,8 +70,8 @@ class AdminContentTest extends TestCase
         $this->assertFileExists($path);
 
         $this->actingAs($admin)->put("/admin/sections/games/{$item['id']}", [
-            'title'          => 'Has Image',
-            'remove_image'   => '1',
+            'title' => 'Has Image',
+            'remove_image' => '1',
         ])->assertRedirect('/admin/sections/games');
 
         $updated = collect(ContentSetting::where('key', 'games')->first()->value)
@@ -111,12 +111,12 @@ class AdminContentTest extends TestCase
     public function test_admin_can_update_the_hero(): void
     {
         $this->actingAs($this->admin())->put('/admin/hero', [
-            'eyebrow'      => 'New eyebrow',
-            'title_lines'  => "Line one\nLine two",
+            'eyebrow' => 'New eyebrow',
+            'title_lines' => "Line one\nLine two",
             'title_accent' => 'Line two',
-            'body'         => 'Body copy.',
-            'stat_value'   => ['6+', ''],
-            'stat_label'   => ['Shipped', ''],
+            'body' => 'Body copy.',
+            'stat_value' => ['6+', ''],
+            'stat_label' => ['Shipped', ''],
         ])->assertRedirect('/admin/hero');
 
         $hero = ContentSetting::where('key', 'hero')->first()->value;
@@ -129,9 +129,9 @@ class AdminContentTest extends TestCase
     public function test_admin_can_update_site_settings(): void
     {
         $this->actingAs($this->admin())->put('/admin/settings', [
-            'contact_email'   => 'hello@example.com',
-            'name'            => 'VLSS',
-            'socials'         => ['discord' => 'https://discord.gg/x', 'bluesky' => '', 'youtube' => '', 'itch' => ''],
+            'contact_email' => 'hello@example.com',
+            'name' => 'VLSS',
+            'socials' => ['discord' => 'https://discord.gg/x', 'bluesky' => '', 'youtube' => '', 'itch' => ''],
         ])->assertRedirect('/admin/settings');
 
         $site = ContentSetting::where('key', 'site')->first()->value;

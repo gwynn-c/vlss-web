@@ -12,8 +12,14 @@ use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
-Route::get('/privacy-policy', [SiteController::class, 'privacy'])->name('privacy');
+Route::get('/games', [SiteController::class, 'games'])->name('games');
+Route::get('/services', [SiteController::class, 'services'])->name('services');
+Route::get('/studio', [SiteController::class, 'studio'])->name('studio');
+Route::get('/team', [SiteController::class, 'team'])->name('team');
+Route::get('/careers', [SiteController::class, 'careers'])->name('careers');
+Route::get('/contact', [SiteController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/privacy-policy', [SiteController::class, 'privacy'])->name('privacy');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 /*
@@ -22,10 +28,11 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Guest
+    // Guest. Both routes are throttled per IP: the GET form is cheap to hammer
+    // (each render loads the RSA key), and the POST is the brute-force target.
     Route::middleware('guest')->group(function () {
-        Route::get('login', [LoginController::class, 'show'])->name('login');
-        Route::post('login', [LoginController::class, 'login'])->name('login.attempt');
+        Route::get('login', [LoginController::class, 'show'])->middleware('throttle:20,1')->name('login');
+        Route::post('login', [LoginController::class, 'login'])->middleware('throttle:20,1')->name('login.attempt');
     });
 
     // Authenticated

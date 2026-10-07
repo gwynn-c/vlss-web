@@ -27,15 +27,9 @@
     nodes.forEach(function (n) { n.classList.add('is-visible'); });
   }
 
-  /* --- header scrolled state + mobile nav --------------------------------- */
+  /* --- mobile nav ---------------------------------------- */
   var header = document.querySelector('.site-header');
   if (header) {
-    var onScroll = function () {
-      header.classList.toggle('is-scrolled', window.scrollY > 8);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-
     var toggle = header.querySelector('.nav-toggle');
     if (toggle) {
       toggle.addEventListener('click', function () {

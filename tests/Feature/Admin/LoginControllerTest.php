@@ -161,4 +161,35 @@ class LoginControllerTest extends TestCase
 
         $this->assertAuthenticatedAs($admin);
     }
+
+    public function test_known_bot_user_agents_are_denied_this_login(): void
+    {
+        $this->withHeaders(['User-Agent' => 'curl/8.4.0'])
+            ->get('/admin/login')
+            ->assertForbidden();
+
+        $this->withHeaders(['User-Agent' => 'python-requests/2.31.0'])
+            ->post('/admin/login', ['email' => 'x@example.com', 'password' => 'secret'])
+            ->assertForbidden();
+
+        $this->withHeaders(['User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36'])
+            ->get('/admin/login')
+            ->assertOk();
+    }
+
+    public function test_login_page_sends_a_noindex_robot_tag(): void
+    {
+        $this->get('/admin/login')->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    public function test_filled_honeypot_is_rejected(): void
+    {
+        User::factory()->create(['email' => 'admin@example.com']);
+        $payload = $this->encryptedLogin(['email' => 'admin@example.com', 'password' => 'password']);
+
+        $response = $this->post('/admin/login', $payload + ['website' => 'http://spam.example']);
+
+        $response->assertSessionHasErrors(['email' => 'Your sign-in could not be verified. Please reload the page and try again.']);
+        $this->assertGuest();
+    }
 }

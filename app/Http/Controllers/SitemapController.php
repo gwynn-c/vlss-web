@@ -12,8 +12,14 @@ class SitemapController extends Controller
     public function index(): Response
     {
         $pages = [
-            ['loc' => route('home'),    'changefreq' => 'weekly',  'priority' => '1.0'],
-            ['loc' => route('privacy'), 'changefreq' => 'yearly',  'priority' => '0.3'],
+            ['loc' => route('home'),     'changefreq' => 'weekly', 'priority' => '1.0'],
+            ['loc' => route('games'),    'changefreq' => 'weekly', 'priority' => '0.8'],
+            ['loc' => route('services'), 'changefreq' => 'monthly', 'priority' => '0.7'],
+            ['loc' => route('studio'),   'changefreq' => 'monthly', 'priority' => '0.6'],
+            ['loc' => route('team'),     'changefreq' => 'monthly', 'priority' => '0.6'],
+            ['loc' => route('careers'),  'changefreq' => 'weekly', 'priority' => '0.7'],
+            ['loc' => route('contact'),  'changefreq' => 'yearly', 'priority' => '0.7'],
+            ['loc' => route('privacy'),  'changefreq' => 'yearly', 'priority' => '0.3'],
         ];
 
         $xml = view('sitemap', ['pages' => $pages])->render();

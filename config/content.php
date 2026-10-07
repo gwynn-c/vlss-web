@@ -18,9 +18,9 @@ return [
         'eyebrow' => 'Game design & development studio',
         'title_lines' => ['We make games.', 'Some of them', 'are even fun.'],
         'title_accent' => 'are even fun.', // which line gets the orange treatment
-        'body' => "From the first scribbled mechanic to the build you can actually put "
-            . "in someone's hands. Original projects, co-development, and proof of "
-            . "concepts that answer the only question that matters early: is this fun yet?",
+        'body' => 'From the first scribbled mechanic to the build you can actually put '
+            ."in someone's hands. Original projects, co-development, and proof of "
+            .'concepts that answer the only question that matters early: is this fun yet?',
         'stats' => [
             ['value' => '6+',    'label' => 'Projects shipped'],
             ['value' => '3 wks', 'label' => 'To a playable proto'],
@@ -75,16 +75,17 @@ return [
 
     'pillars' => [
         ['title' => 'Prototype-first', 'body' => 'Playable in weeks, not quarters.',   'color' => 'orange'],
-        ['title' => 'Systems people',  'body' => 'Cards, loops, economies, meta.',      'color' => 'purple'],
-        ['title' => 'Straight answers','body' => "If it isn't fun yet, we'll say so.",  'color' => 'teal'],
+        ['title' => 'Systems people',  'body' => 'Cards, loops, economies, meta.',      'color' => 'steel'],
+        ['title' => 'Straight answers', 'body' => "If it isn't fun yet, we'll say so.",  'color' => 'steel'],
         ['title' => 'Full pipeline',   'body' => 'Design, art, code, release.',         'color' => 'ink'],
     ],
 
+    // Each member is a name inside a department; the /team page groups them.
     'team' => [
-        ['name' => 'Team Member', 'role' => 'Founder / design', 'note' => 'One line of deadpan bio.', 'image' => null, 'image_hint' => 'Drop a portrait'],
-        ['name' => 'Team Member', 'role' => 'Engineering',      'note' => 'One line of deadpan bio.', 'image' => null, 'image_hint' => 'Drop a portrait'],
-        ['name' => 'Team Member', 'role' => 'Art direction',    'note' => 'One line of deadpan bio.', 'image' => null, 'image_hint' => 'Drop a portrait'],
-        ['name' => 'Team Member', 'role' => 'Production',        'note' => 'One line of deadpan bio.', 'image' => null, 'image_hint' => 'Drop a portrait'],
+        ['name' => 'Team Member', 'department' => 'engineering'],
+        ['name' => 'Team Member', 'department' => 'engineering'],
+        ['name' => 'Team Member', 'department' => 'art'],
+        ['name' => 'Team Member', 'department' => 'design'],
     ],
 
     'quotes' => [

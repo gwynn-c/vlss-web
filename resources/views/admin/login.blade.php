@@ -17,6 +17,7 @@
             <input type="hidden" name="encrypted_key" value="">
             <input type="hidden" name="iv" value="">
             <input type="hidden" name="payload" value="">
+            <input type="text" name="website" value="" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="login-brand">
                 <img src="{{ asset('img/logo-mark.png') }}" alt="" width="34" height="34">
                 <span>VLSS Admin</span>

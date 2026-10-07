@@ -1,15 +1,15 @@
 @php($socials = config('site.socials'))
 
-<section class="contact" id="contact" aria-labelledby="contact-title">
+<section class="contact" id="contact" aria-labelledby="contact-title" data-reveal>
     <div class="contact__grid">
-        <div class="contact__info" data-reveal>
-            <span class="eyebrow eyebrow--teal no-rule">05 — Contact</span>
-            <h2 class="section-title" id="contact-title">Tell us what<br>you're building</h2>
+        <div class="contact__info">
+            <span class="eyebrow eyebrow--steel">Contact</span>
+            <h1 class="section-title" id="contact-title">Tell us what<br>you're building</h1>
             <p class="contact__lede">Pitches, co-dev, a prototype you need looked at — all welcome. We reply within two working days, even when the answer is no.</p>
 
             <div class="contact__card">
                 <span class="contact__card-label">Rather just talk?</span>
-                <a href="#contact" class="contact__call">Book a 30-min call →</a>
+                <a href="mailto:{{ config('site.contact_email') }}" class="contact__call">Book a 30-min call →</a>
                 <span class="contact__email-line">Or email <a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a></span>
             </div>
 
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <form class="form" method="POST" action="{{ route('contact.store') }}" data-reveal novalidate>
+        <form class="form" method="POST" action="{{ route('contact.store') }}" novalidate>
             @csrf
 
             @if (session('contact_sent'))

@@ -1,13 +1,5 @@
-<section class="section" id="games" aria-labelledby="games-title">
+<section class="section" aria-labelledby="games-title">
     <div class="container">
-        <div class="section__head" data-reveal>
-            <div class="section__head-copy">
-                <span class="eyebrow eyebrow--purple no-rule">01 — Products</span>
-                <h2 class="section-title" id="games-title">The showcase</h2>
-            </div>
-            <p class="section__note">Some ours, some built with partners. All of them playable — we don't ship slideware.</p>
-        </div>
-
         <div class="games__grid">
             @foreach ($games as $game)
                 <article class="game-card" data-reveal>
@@ -23,7 +15,7 @@
                             <span class="badge badge--{{ $game['status'] }}">{{ $game['status_label'] }}</span>
                             <span class="badge-meta">{{ $game['meta'] }}</span>
                         </div>
-                        <h3 class="game-card__title">{{ $game['title'] }}</h3>
+                        <h2 class="game-card__title">{{ $game['title'] }}</h2>
                         <p class="game-card__blurb">{{ $game['blurb'] }}</p>
                         <a href="{{ $game['href'] }}" class="game-card__link">{{ $game['link_label'] }} <span aria-hidden="true">→</span></a>
                     </div>
